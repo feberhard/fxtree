@@ -1,0 +1,21 @@
+$node-height: 24px;
+tstree, div {
+    display: block;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+
+.tstree-root {
+    padding: 0;
+    margin: 0;
+}
+
+.tstree-node {
+    list-style: none;
+    border-bottom: 1px solid lightgray;
+    height: $node-height;
+    line-height: $node-height;
+    padding-left: 20px;
+    box-sizing: border-box;
+}
