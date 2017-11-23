@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TsTreeNode } from './tstree/tstree.component';
 
 @Component({
     selector: 'app-root',
@@ -7,11 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
     public data: number[];
+    public tree: TsTreeNode[];
 
     constructor() { }
 
     ngOnInit() {
-        this.data = this.generateData(1000000);
+        // this.data = this.generateData(5000);
+        this.tree = this.generateTree(7, 6);
+        // this.tree = this.generateTree(5, 3);
     }
 
     public generateData(count: number) {
@@ -20,5 +24,21 @@ export class AppComponent implements OnInit {
             data[i] = i;
         }
         return data;
+    }
+
+    public generateTree(countPerLevel: number, level: number): TsTreeNode[] {
+        if (level === 0) {
+            return null;
+        }
+
+        const nodes = new Array<TsTreeNode>(countPerLevel);
+        for (let i = 0; i < countPerLevel; i++) {
+            nodes[i] = {
+                text: 'Level ' + level + ' - Element ' + i,
+                children: this.generateTree(countPerLevel, level - 1)
+            };
+        }
+
+        return nodes;
     }
 }

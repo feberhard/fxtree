@@ -11,11 +11,20 @@ tstree, div {
     margin: 0;
 }
 
+.tstree-children {
+    padding-left: 20px;
+}
+
 .tstree-node {
     list-style: none;
-    border-bottom: 1px solid lightgray;
+    box-sizing: border-box;
+}
+
+.tstree-node-content{
     height: $node-height;
     line-height: $node-height;
-    padding-left: 20px;
-    box-sizing: border-box;
+    border-bottom: 1px solid lightgray;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
