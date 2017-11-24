@@ -96,10 +96,16 @@ export class TsTreeComponent implements OnInit {
         const nodeContentWrapperDiv = document.createElement('div');
         nodeContentWrapperDiv.classList.add('tstree-node-content-wrapper');
 
+        const childrenExpanderWrapperSpan = document.createElement('span');
+        childrenExpanderWrapperSpan.classList.add('tstree-children-expander-wrapper');
+        childrenExpanderWrapperSpan.onclick = () => { this.toggleNode(node); this.refresh(this.data); };
+
         const childrenExpanderSpan = document.createElement('span');
         childrenExpanderSpan.classList.add('tstree-children-expander');
-        childrenExpanderSpan.onclick = () => { this.toggleNode(node); this.refresh(this.data); };
-        nodeContentWrapperDiv.appendChild(childrenExpanderSpan);
+        childrenExpanderWrapperSpan.appendChild(childrenExpanderSpan);
+
+        nodeContentWrapperDiv.appendChild(childrenExpanderWrapperSpan);
+
 
         const nodeContentDiv = document.createElement('div');
         nodeContentDiv.classList.add('tstree-node-content');

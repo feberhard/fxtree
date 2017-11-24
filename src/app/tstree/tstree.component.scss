@@ -35,26 +35,39 @@ div {
     white-space: nowrap;
 }
 
+.tstree-children-expander-wrapper {
+    display: inline-block;
+    height: $node-height;
+    width: $node-height;
+    text-align: center;
+    line-height: $node-height - 1px;
+}
+
 .tstree-children-expander {
     align-self: center;
     width: 0;
     height: 0;
     border-style: solid;
     display: inline-block;
-    margin-right: 18px;
     border-width: 0;
 }
 
-.tstree-node-expanded>.tstree-node-content-wrapper>.tstree-children-expander {
-    cursor: pointer;
-    margin-right: 10px;
-    border-width: 0 0 8px 8px;
-    border-color: transparent transparent #000000 transparent;
+.tstree-node-expanded>.tstree-node-content-wrapper {
+    .tstree-children-expander-wrapper {
+        cursor: pointer;
+        .tstree-children-expander {
+            border-width: 0 0 8px 8px;
+            border-color: transparent transparent #000000 transparent;
+        }
+    }
 }
 
-.tstree-node-collapsed>.tstree-node-content-wrapper>.tstree-children-expander {
-    cursor: pointer;
-    margin-right: 10px;
-    border-width: 4px 0 4px 8px;
-    border-color: transparent transparent transparent #000000;
+.tstree-node-collapsed>.tstree-node-content-wrapper {
+    .tstree-children-expander-wrapper {
+        cursor: pointer;
+        .tstree-children-expander {
+            border-width: 4px 0 4px 8px;
+            border-color: transparent transparent transparent #000000;
+        }
+    }
 }
