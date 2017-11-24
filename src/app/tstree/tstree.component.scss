@@ -1,5 +1,7 @@
 $node-height: 24px;
-tstree, div {
+// TODO remove div selector (currently scroll detection doesn't work without it);
+tstree,
+div {
     display: block;
     height: 100%;
     width: 100%;
@@ -20,11 +22,39 @@ tstree, div {
     box-sizing: border-box;
 }
 
-.tstree-node-content{
+.tstree-node-content-wrapper {
+    border-bottom: 1px solid lightgray;
+    display: flex;
+}
+
+.tstree-node-content {
     height: $node-height;
     line-height: $node-height;
-    border-bottom: 1px solid lightgray;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.tstree-children-expander {
+    align-self: center;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    display: inline-block;
+    margin-right: 18px;
+    border-width: 0;
+}
+
+.tstree-node-expanded>.tstree-node-content-wrapper>.tstree-children-expander {
+    cursor: pointer;
+    margin-right: 10px;
+    border-width: 0 0 8px 8px;
+    border-color: transparent transparent #000000 transparent;
+}
+
+.tstree-node-collapsed>.tstree-node-content-wrapper>.tstree-children-expander {
+    cursor: pointer;
+    margin-right: 10px;
+    border-width: 4px 0 4px 8px;
+    border-color: transparent transparent transparent #000000;
 }

@@ -14,8 +14,10 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         // this.data = this.generateData(5000);
+
         this.tree = this.generateTree(7, 6);
         // this.tree = this.generateTree(5, 3);
+        // this.tree = this.generateTree(3, 3);
     }
 
     public generateData(count: number) {
