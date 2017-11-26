@@ -17,6 +17,10 @@ export class TsTreeComponent implements OnInit {
     private currentNodeCount: number;
     private dragData: TsTreeNodeInternal;
 
+    // https://stackoverflow.com/questions/28260889/set-large-value-to-divs-height
+    // Different browser have different max values for the height property
+    private readonly maxNodeheightBreakPoint = 1000000;
+
     constructor(private el: ElementRef) {
         this.nodeHeight = 24;
     }
@@ -28,10 +32,10 @@ export class TsTreeComponent implements OnInit {
         this.host.appendChild(this.hostUl);
 
         this.currentNodeCount = this.indexData(this.data);
-        // this.hostUl.style.height = this.nodeCount * this.nodeHeight + 'px';
+        // this.hostUl.style.height = this.currentNodeCount * this.nodeHeight + 'px';
 
         console.log(this.currentNodeCount);
-        console.log(this.data);
+        // console.log(this.data);
 
         this.getTreeElements(this.data, 3, 5);
 
@@ -201,6 +205,8 @@ export class TsTreeComponent implements OnInit {
         return elements;
     }
 
+
+
     private refresh(data: TsTreeNode[]) {
         const listHeight = this.currentNodeCount * this.nodeHeight;
         const hostHeight = this.host.clientHeight;
@@ -209,30 +215,32 @@ export class TsTreeComponent implements OnInit {
         const scrollTop = this.host.scrollTop;
 
         const topElements = Math.min(Math.floor(scrollTop / this.nodeHeight), this.currentNodeCount - maxDisplayCount);
-        const topHeight = topElements * this.nodeHeight;
+        let topHeight = topElements * this.nodeHeight;
 
         const bottomElements = this.currentNodeCount - topElements - maxDisplayCount;
-        const bottomHeight = bottomElements * this.nodeHeight;
+        let bottomHeight = bottomElements * this.nodeHeight;
 
         this.hostUl.innerHTML = '';
 
-        if (topHeight > 0) {
+        while (topHeight > 0) {
             const topLi = document.createElement('li');
             topLi.classList.add('tstree-node');
             topLi.innerText = 'top';
-            topLi.style.height = topHeight + 'px';
+            topLi.style.height = Math.min(topHeight, this.maxNodeheightBreakPoint) + 'px';
             this.hostUl.appendChild(topLi);
+            topHeight -= this.maxNodeheightBreakPoint;
         }
 
         const contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
         contentNodes.forEach(n => this.hostUl.appendChild(n));
 
-        if (bottomHeight > 0) {
+        while (bottomHeight > 0) {
             const bottomLi = document.createElement('li');
             bottomLi.classList.add('tstree-node');
             bottomLi.innerText = 'bottom';
-            bottomLi.style.height = bottomHeight + 'px';
+            bottomLi.style.height = Math.min(bottomHeight, this.maxNodeheightBreakPoint) + 'px';
             this.hostUl.appendChild(bottomLi);
+            bottomHeight -= this.maxNodeheightBreakPoint;
         }
     }
 
@@ -247,7 +255,6 @@ interface TsTreeInternalData {
     index: number;
     parent: TsTreeNodeInternal;
 
-    // TODO: instead of index
     currentChildCount?: number; // current displayed children (expanded/collapsed)
     totalChildCount?: number; // total number of children (expanded)
 }
