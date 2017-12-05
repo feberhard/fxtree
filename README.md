@@ -30,6 +30,8 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 ## Next Steps
 - Drag and Drop Indicator
+- node height configurable (remove from css)
 - Node Selection
 -- Checkbox
 - Virtualization (preload more rows and add additional rows instead of replacing all everytime)
+- support angular templates for node content

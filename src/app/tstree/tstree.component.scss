@@ -1,10 +1,22 @@
 $node-height: 24px;
-// TODO remove div selector (currently scroll detection doesn't work without it);
+$border-bottom-width: 1px;
+
+$expander-width: $node-height;
+
+$indicator-width: 6px;
+$indicator-height: 10px;
+
+// TODO: remove div selector (currently scroll detection doesn't work without it);
+
 tstree,
 div {
     display: block;
     height: 100%;
     width: 100%;
+    overflow: auto;
+}
+
+.tstree-container {
     overflow: auto;
 }
 
@@ -23,11 +35,17 @@ div {
 }
 
 .tstree-node-content-wrapper {
-    border-bottom: 1px solid lightgray;
+    border-bottom: $border-bottom-width solid lightgray;
     display: flex;
+    position: relative;
+    overflow: visible;
 }
 
 .tstree-node-content {
+    // margin: -1px, padding:1px to make border space part of node-content
+    // to avoid blinking of drop indicator when switching between nodes
+    margin-bottom: -$border-bottom-width;
+    padding-bottom: $border-bottom-width;
     height: $node-height;
     line-height: $node-height;
     overflow: hidden;
@@ -38,11 +56,13 @@ div {
 .tstree-children-expander-wrapper {
     display: inline-block;
     height: $node-height;
-    width: $node-height;
+    width: $expander-width;
     text-align: center;
     line-height: $node-height - 1px;
+    margin-right: 7px;
 }
 
+// Expander
 .tstree-children-expander {
     align-self: center;
     width: 0;
@@ -70,4 +90,34 @@ div {
             border-color: transparent transparent transparent #000000;
         }
     }
+}
+
+// Drag and Drop Indicator
+@mixin tstree-indicator {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    display: block;
+    border-style: solid;
+    border-width: $indicator-height/2 0 $indicator-height/2 $indicator-width;
+    border-color: transparent transparent transparent black;
+}
+
+.tstree-before-indicator::before {
+    @include tstree-indicator();
+    margin-top: -($indicator-height / 2) - $border-bottom-width; // 5px - border-width to avoid jumping of the indicator when switching nodes
+    margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
+}
+
+.tstree-inside-indicator::before {
+    @include tstree-indicator();
+    margin-top: ($node-height / 2) - ($indicator-height / 2);
+    margin-left: $expander-width - $indicator-width - 1px; // expander width - indicator width - offset
+}
+
+.tstree-after-indicator::before {
+    @include tstree-indicator();
+    margin-top: $node-height - ($indicator-height / 2);
+    margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
 }

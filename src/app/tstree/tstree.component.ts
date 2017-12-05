@@ -8,21 +8,27 @@ import { Component, OnInit, Input, ElementRef, ViewEncapsulation, HostListener }
     encapsulation: ViewEncapsulation.None
 })
 export class TsTreeComponent implements OnInit {
+    private static dragData: TsTreeNodeInternal;
 
     @Input() data: TsTreeNodeInternal[];
     @Input() nodeHeight: number;
 
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
-    private currentNodeCount: number;
-    private dragData: TsTreeNodeInternal;
+    private virtualRootNode: TsTreeNodeInternal;
 
     // https://stackoverflow.com/questions/28260889/set-large-value-to-divs-height
     // Different browser have different max values for the height property
     private readonly maxNodeheightBreakPoint = 1000000;
 
+    private lastDragoverY: number;
+
     constructor(private el: ElementRef) {
         this.nodeHeight = 24;
+    }
+
+    public static setDragData(node: TsTreeNodeInternal) {
+        this.dragData = node;
     }
 
     ngOnInit() {
@@ -31,10 +37,11 @@ export class TsTreeComponent implements OnInit {
         this.hostUl.classList.add('tstree-root');
         this.host.appendChild(this.hostUl);
 
-        this.currentNodeCount = this.indexData(this.data);
-        // this.hostUl.style.height = this.currentNodeCount * this.nodeHeight + 'px';
+        this.virtualRootNode = <TsTreeNodeInternal>{};
+        this.virtualRootNode.children = this.data;
+        this.indexData([this.virtualRootNode], null, -1, -1);
 
-        console.log(this.currentNodeCount);
+        console.log(this.virtualRootNode._tstree.currentChildCount);
         // console.log(this.data);
 
         this.getTreeElements(this.data, 3, 5);
@@ -42,17 +49,13 @@ export class TsTreeComponent implements OnInit {
         this.refresh(this.data);
     }
 
-    public setDragData(node: TsTreeNodeInternal) {
-        this.dragData = node;
-    }
-
-    private indexData(data: TsTreeNode[], level: number = 0, index: number = 0, parent: TsTreeNodeInternal = null): number {
+    private indexData(data: TsTreeNode[], parent: TsTreeNodeInternal = null, level: number = 0, index: number = 0): number {
         for (let i = 0; i < data.length; i++) {
             const internalNode = <TsTreeNodeInternal>data[i];
             internalNode._tstree = { level: level, index: index, parent: parent, expanded: true };
             index++;
             if (internalNode.children && internalNode.children.length > 0) {
-                index = this.indexData(internalNode.children, level + 1, index, internalNode);
+                index = this.indexData(internalNode.children, internalNode, level + 1, index);
             }
             internalNode._tstree.currentChildCount = internalNode._tstree.totalChildCount = index - internalNode._tstree.index - 1;
         }
@@ -60,7 +63,6 @@ export class TsTreeComponent implements OnInit {
     }
 
     private updateParentsChildCount(node: TsTreeNodeInternal, childCountChange: number) {
-        this.currentNodeCount += childCountChange;
         let parent: TsTreeNodeInternal = node;
         while (parent = parent._tstree.parent) {
             parent._tstree.currentChildCount += childCountChange;
@@ -101,6 +103,74 @@ export class TsTreeComponent implements OnInit {
         return false;
     }
 
+    private initDragAndDrop(node: TsTreeNodeInternal, nodeContentDiv: HTMLDivElement, nodeContentWrapperDiv: HTMLDivElement) {
+        nodeContentDiv.draggable = true;
+        nodeContentDiv.ondragstart = (e) => { TsTreeComponent.setDragData(node); };
+        nodeContentDiv.ondragover = (e) => {
+            // Don't allow drag to own node or parent to child node
+            if (node !== TsTreeComponent.dragData && !this.isParentOf(TsTreeComponent.dragData, node)) {
+                // default: drop not allowed, preventDefault: drop allowed
+                e.preventDefault();
+
+                if (e.clientY !== this.lastDragoverY) {
+                    this.lastDragoverY = e.clientY;
+                    nodeContentWrapperDiv.classList.remove('tstree-before-indicator');
+                    nodeContentWrapperDiv.classList.remove('tstree-inside-indicator');
+                    nodeContentWrapperDiv.classList.remove('tstree-after-indicator');
+
+                    if (e.offsetY < this.nodeHeight / 3) { // before
+                        nodeContentWrapperDiv.classList.add('tstree-before-indicator');
+                    } else if (e.offsetY > 2 * this.nodeHeight / 3) { // after
+                        nodeContentWrapperDiv.classList.add('tstree-after-indicator');
+                    } else { // inside
+                        nodeContentWrapperDiv.classList.add('tstree-inside-indicator');
+                    }
+                }
+            }
+        };
+        nodeContentDiv.ondrop = (e) => {
+            e.preventDefault();
+            const draggedNode = TsTreeComponent.dragData;
+
+            let parentNode: TsTreeNodeInternal;
+            let position: number;
+
+            if (e.offsetY < this.nodeHeight / 3) { // before
+                position = node._tstree.parent.children.indexOf(node);
+                parentNode = node._tstree.parent;
+            } else if (e.offsetY > 2 * this.nodeHeight / 3) { // after
+                position = node._tstree.parent.children.indexOf(node) + 1;
+                parentNode = node._tstree.parent;
+            } else { // inside
+                parentNode = node;
+                position = 0;
+            }
+
+            if (draggedNode._tstree.parent) {
+                this.updateParentsChildCount(draggedNode, -(draggedNode._tstree.currentChildCount + 1));
+                const childIndex = draggedNode._tstree.parent.children.indexOf(draggedNode);
+                draggedNode._tstree.parent.children.splice(childIndex, 1);
+            }
+
+            parentNode.children = parentNode.children || [];
+            parentNode.children.splice(position, 0, draggedNode);
+            draggedNode._tstree.parent = parentNode;
+            this.updateParentsChildCount(draggedNode, draggedNode._tstree.currentChildCount + 1);
+
+            this.refresh(this.data);
+        };
+        // nodeContentDiv.addEventListener('dragover', (e) => {
+        //     nodeContentDiv.classList.add('tstree-inside-indicator');
+        // }, false);
+        nodeContentDiv.addEventListener('dragleave', (e) => {
+            // TODO: indicator blinks when leaving and entering the next node (delay removal of indicator)
+            this.lastDragoverY = null;
+            nodeContentWrapperDiv.classList.remove('tstree-before-indicator');
+            nodeContentWrapperDiv.classList.remove('tstree-inside-indicator');
+            nodeContentWrapperDiv.classList.remove('tstree-after-indicator');
+        }, false);
+    }
+
     private getNodeElement(node: TsTreeNodeInternal) {
         const li = document.createElement('li');
         li.classList.add('tstree-node');
@@ -122,41 +192,15 @@ export class TsTreeComponent implements OnInit {
         const childrenExpanderSpan = document.createElement('span');
         childrenExpanderSpan.classList.add('tstree-children-expander');
         childrenExpanderWrapperSpan.appendChild(childrenExpanderSpan);
-
         nodeContentWrapperDiv.appendChild(childrenExpanderWrapperSpan);
 
         const nodeContentDiv = document.createElement('div');
         nodeContentDiv.classList.add('tstree-node-content');
         nodeContentDiv.textContent = node.text + ' - ' + node._tstree.index;
         nodeContentDiv.title = nodeContentDiv.textContent;
-        nodeContentDiv.draggable = true;
-        nodeContentDiv.ondragstart = (e) => { this.setDragData(node); };
-        nodeContentDiv.ondragover = (e) => {
-            // Don't allow drag to own node or parent to child node
-            if (node !== this.dragData && !this.isParentOf(this.dragData, node)) {
-                // default: drop not allowed, preventDefault: drop allowed
-                e.preventDefault();
-            }
-        };
-        nodeContentDiv.ondrop = (e) => {
-            e.preventDefault();
-            const draggedNode = this.dragData;
 
-            if (draggedNode._tstree.parent) {
-                this.updateParentsChildCount(draggedNode, -(draggedNode._tstree.currentChildCount + 1));
-                const childIndex = draggedNode._tstree.parent.children.indexOf(draggedNode);
-                draggedNode._tstree.parent.children.splice(childIndex, 1);
-            }
-
-            node.children = node.children || [];
-            node.children.unshift(draggedNode);
-            draggedNode._tstree.parent = node;
-            this.updateParentsChildCount(draggedNode, draggedNode._tstree.currentChildCount + 1);
-
-            this.refresh(this.data);
-        };
+        this.initDragAndDrop(node, nodeContentDiv, nodeContentWrapperDiv);
         nodeContentWrapperDiv.appendChild(nodeContentDiv);
-
         li.appendChild(nodeContentWrapperDiv);
 
         return li;
@@ -205,19 +249,18 @@ export class TsTreeComponent implements OnInit {
         return elements;
     }
 
-
-
     private refresh(data: TsTreeNode[]) {
-        const listHeight = this.currentNodeCount * this.nodeHeight;
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
 
         const scrollTop = this.host.scrollTop;
 
-        const topElements = Math.min(Math.floor(scrollTop / this.nodeHeight), this.currentNodeCount - maxDisplayCount);
+        const topElements = Math.min(
+            Math.floor(scrollTop / this.nodeHeight),
+            this.virtualRootNode._tstree.currentChildCount - maxDisplayCount);
         let topHeight = topElements * this.nodeHeight;
 
-        const bottomElements = this.currentNodeCount - topElements - maxDisplayCount;
+        const bottomElements = this.virtualRootNode._tstree.currentChildCount - topElements - maxDisplayCount;
         let bottomHeight = bottomElements * this.nodeHeight;
 
         this.hostUl.innerHTML = '';
@@ -225,7 +268,7 @@ export class TsTreeComponent implements OnInit {
         while (topHeight > 0) {
             const topLi = document.createElement('li');
             topLi.classList.add('tstree-node');
-            topLi.innerText = 'top';
+            topLi.textContent = 'top';
             topLi.style.height = Math.min(topHeight, this.maxNodeheightBreakPoint) + 'px';
             this.hostUl.appendChild(topLi);
             topHeight -= this.maxNodeheightBreakPoint;
@@ -237,7 +280,7 @@ export class TsTreeComponent implements OnInit {
         while (bottomHeight > 0) {
             const bottomLi = document.createElement('li');
             bottomLi.classList.add('tstree-node');
-            bottomLi.innerText = 'bottom';
+            bottomLi.textContent = 'bottom';
             bottomLi.style.height = Math.min(bottomHeight, this.maxNodeheightBreakPoint) + 'px';
             this.hostUl.appendChild(bottomLi);
             bottomHeight -= this.maxNodeheightBreakPoint;
