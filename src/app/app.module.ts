@@ -3,13 +3,13 @@ import { NgModule } from '@angular/core';
 
 
 import { AppComponent } from './app.component';
-import { TsTreeComponent } from './tstree/tstree.component';
+import { FxTreeComponent } from './fxtree/fxtree.component';
 
 
 @NgModule({
     declarations: [
         AppComponent,
-        TsTreeComponent
+        FxTreeComponent
     ],
     imports: [
         BrowserModule

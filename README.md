@@ -1,4 +1,4 @@
-# Tstree
+# FxTree
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.5.2.
 
@@ -29,7 +29,8 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 
 
 ## Next Steps
-- Drag and Drop Indicator
+- rename to FxTree
+- Demo for Github
 - node height configurable (remove from css)
 - Node Selection
 -- Checkbox

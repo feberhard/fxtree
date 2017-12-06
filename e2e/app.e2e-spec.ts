@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('tstree App', () => {
+describe('fxtree App', () => {
   let page: AppPage;
 
   beforeEach(() => {

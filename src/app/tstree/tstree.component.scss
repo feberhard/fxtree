@@ -8,7 +8,7 @@ $indicator-height: 10px;
 
 // TODO: remove div selector (currently scroll detection doesn't work without it);
 
-tstree,
+fxtree,
 div {
     display: block;
     height: 100%;
@@ -16,32 +16,32 @@ div {
     overflow: auto;
 }
 
-.tstree-container {
+.fxtree-container {
     overflow: auto;
 }
 
-.tstree-root {
+.fxtree-root {
     padding: 0;
     margin: 0;
 }
 
-.tstree-children {
+.fxtree-children {
     padding-left: 20px;
 }
 
-.tstree-node {
+.fxtree-node {
     list-style: none;
     box-sizing: border-box;
 }
 
-.tstree-node-content-wrapper {
+.fxtree-node-content-wrapper {
     border-bottom: $border-bottom-width solid lightgray;
     display: flex;
     position: relative;
     overflow: visible;
 }
 
-.tstree-node-content {
+.fxtree-node-content {
     // margin: -1px, padding:1px to make border space part of node-content
     // to avoid blinking of drop indicator when switching between nodes
     margin-bottom: -$border-bottom-width;
@@ -53,7 +53,7 @@ div {
     white-space: nowrap;
 }
 
-.tstree-children-expander-wrapper {
+.fxtree-children-expander-wrapper {
     display: inline-block;
     height: $node-height;
     width: $expander-width;
@@ -63,7 +63,7 @@ div {
 }
 
 // Expander
-.tstree-children-expander {
+.fxtree-children-expander {
     align-self: center;
     width: 0;
     height: 0;
@@ -72,20 +72,20 @@ div {
     border-width: 0;
 }
 
-.tstree-node-expanded>.tstree-node-content-wrapper {
-    .tstree-children-expander-wrapper {
+.fxtree-node-expanded>.fxtree-node-content-wrapper {
+    .fxtree-children-expander-wrapper {
         cursor: pointer;
-        .tstree-children-expander {
+        .fxtree-children-expander {
             border-width: 0 0 8px 8px;
             border-color: transparent transparent #000000 transparent;
         }
     }
 }
 
-.tstree-node-collapsed>.tstree-node-content-wrapper {
-    .tstree-children-expander-wrapper {
+.fxtree-node-collapsed>.fxtree-node-content-wrapper {
+    .fxtree-children-expander-wrapper {
         cursor: pointer;
-        .tstree-children-expander {
+        .fxtree-children-expander {
             border-width: 4px 0 4px 8px;
             border-color: transparent transparent transparent #000000;
         }
@@ -93,7 +93,7 @@ div {
 }
 
 // Drag and Drop Indicator
-@mixin tstree-indicator {
+@mixin fxtree-indicator {
     content: "";
     position: absolute;
     width: 0;
@@ -104,20 +104,20 @@ div {
     border-color: transparent transparent transparent black;
 }
 
-.tstree-before-indicator::before {
-    @include tstree-indicator();
+.fxtree-before-indicator::before {
+    @include fxtree-indicator();
     margin-top: -($indicator-height / 2) - $border-bottom-width; // 5px - border-width to avoid jumping of the indicator when switching nodes
     margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
 }
 
-.tstree-inside-indicator::before {
-    @include tstree-indicator();
+.fxtree-inside-indicator::before {
+    @include fxtree-indicator();
     margin-top: ($node-height / 2) - ($indicator-height / 2);
     margin-left: $expander-width - $indicator-width - 1px; // expander width - indicator width - offset
 }
 
-.tstree-after-indicator::before {
-    @include tstree-indicator();
+.fxtree-after-indicator::before {
+    @include fxtree-indicator();
     margin-top: $node-height - ($indicator-height / 2);
     margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
 }

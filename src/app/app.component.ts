@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TsTreeNode } from './tstree/tstree.component';
+import { FxTreeNode } from './fxtree/fxtree.component';
 
 @Component({
     selector: 'app-root',
@@ -8,7 +8,7 @@ import { TsTreeNode } from './tstree/tstree.component';
 })
 export class AppComponent implements OnInit {
     public data: number[];
-    public tree: TsTreeNode[];
+    public tree: FxTreeNode[];
 
     constructor() { }
 
@@ -29,12 +29,12 @@ export class AppComponent implements OnInit {
         return data;
     }
 
-    public generateTree(countPerLevel: number, level: number): TsTreeNode[] {
+    public generateTree(countPerLevel: number, level: number): FxTreeNode[] {
         if (level === 0) {
             return null;
         }
 
-        const nodes = new Array<TsTreeNode>(countPerLevel);
+        const nodes = new Array<FxTreeNode>(countPerLevel);
         for (let i = 0; i < countPerLevel; i++) {
             nodes[i] = {
                 text: 'Level ' + level + ' - Element ' + i,
