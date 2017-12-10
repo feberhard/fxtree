@@ -11,7 +11,7 @@ export class FxTreeComponent implements OnInit {
     private static dragData: FxTreeNodeInternal;
 
     @Input() data: FxTreeNodeInternal[];
-    @Input() nodeHeight: number;
+    @Input() nodeHeight = 24;
 
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
@@ -24,7 +24,6 @@ export class FxTreeComponent implements OnInit {
     private lastDragoverY: number;
 
     constructor(private el: ElementRef) {
-        this.nodeHeight = 24;
     }
 
     public static setDragData(node: FxTreeNodeInternal) {
@@ -184,6 +183,8 @@ export class FxTreeComponent implements OnInit {
 
         const nodeContentWrapperDiv = document.createElement('div');
         nodeContentWrapperDiv.classList.add('fxtree-node-content-wrapper');
+        nodeContentWrapperDiv.style.height = this.nodeHeight + 'px';
+        nodeContentWrapperDiv.style.lineHeight = this.nodeHeight + 'px';
 
         const childrenExpanderWrapperSpan = document.createElement('span');
         childrenExpanderWrapperSpan.classList.add('fxtree-children-expander-wrapper');

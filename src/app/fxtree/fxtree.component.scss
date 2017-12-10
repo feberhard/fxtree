@@ -1,7 +1,6 @@
-$node-height: 24px;
 $border-bottom-width: 1px;
 
-$expander-width: $node-height;
+$expander-width: 24px;
 
 $indicator-width: 6px;
 $indicator-height: 10px;
@@ -39,6 +38,8 @@ div {
     display: flex;
     position: relative;
     overflow: visible;
+
+    // Node- and line-height are set in code
 }
 
 .fxtree-node-content {
@@ -46,8 +47,7 @@ div {
     // to avoid blinking of drop indicator when switching between nodes
     margin-bottom: -$border-bottom-width;
     padding-bottom: $border-bottom-width;
-    height: $node-height;
-    line-height: $node-height;
+
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -55,10 +55,8 @@ div {
 
 .fxtree-children-expander-wrapper {
     display: inline-block;
-    height: $node-height;
     width: $expander-width;
     text-align: center;
-    line-height: $node-height - 1px;
     margin-right: 7px;
 }
 
@@ -112,12 +110,14 @@ div {
 
 .fxtree-inside-indicator::before {
     @include fxtree-indicator();
-    margin-top: ($node-height / 2) - ($indicator-height / 2);
+    top: 50%;
+    transform: translateY(-50%);
     margin-left: $expander-width - $indicator-width - 1px; // expander width - indicator width - offset
 }
 
 .fxtree-after-indicator::before {
     @include fxtree-indicator();
-    margin-top: $node-height - ($indicator-height / 2);
+    top: 100%;
+    transform: translateY(-50%);
     margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
 }

@@ -6,6 +6,10 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 https://feberhard.github.io/fxtree/
 
+## Features
+- Fast virtualized tree
+- Drag and Drop
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
@@ -45,8 +49,7 @@ ngh
 ```
 
 ## Next Steps
-- node height configurable (remove from css)
 - Node Selection
--- Checkbox
+  - Checkbox
 - Virtualization (preload more rows and add additional rows instead of replacing all everytime)
 - support angular templates for node content
