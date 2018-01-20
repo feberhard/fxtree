@@ -1,17 +1,28 @@
-import { Component, OnInit, Input, ElementRef, ViewEncapsulation, HostListener } from '@angular/core';
+import {
+    Component, OnInit, Input, ElementRef, ViewEncapsulation, HostListener, Output, EventEmitter
+} from '@angular/core';
+
+import { FxTreeNodeInternal, FxTreeNode } from './model';
+import { CascadeStrategy } from './enum';
+import { FxTreeCheckboxService } from './service';
+import { FxTreeUtil } from './util';
 
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'fxtree',
     templateUrl: './fxtree.component.html',
     styleUrls: ['./fxtree.component.scss'],
-    encapsulation: ViewEncapsulation.None
+    encapsulation: ViewEncapsulation.None,
+    providers: [FxTreeCheckboxService]
 })
 export class FxTreeComponent implements OnInit {
     private static dragData: FxTreeNodeInternal;
 
     @Input() data: FxTreeNodeInternal[];
     @Input() nodeHeight = 24;
+    @Input() enableCheckbox = true;
+    @Input() cascadeStrategy = CascadeStrategy.UpAndDown;
+    @Input() useIndeterminate = true;
 
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
@@ -23,7 +34,11 @@ export class FxTreeComponent implements OnInit {
 
     private lastDragoverY: number;
 
-    constructor(private el: ElementRef) {
+    constructor(
+        private el: ElementRef,
+        private checkboxService: FxTreeCheckboxService
+    ) {
+        checkboxService.init(this);
     }
 
     public static setDragData(node: FxTreeNodeInternal) {
@@ -45,7 +60,7 @@ export class FxTreeComponent implements OnInit {
 
         this.getTreeElements(this.data, 3, 5);
 
-        this.refresh(this.data);
+        this.refresh();
     }
 
     private indexData(data: FxTreeNode[], parent: FxTreeNodeInternal = null, level: number = 0, index: number = 0): number {
@@ -92,22 +107,12 @@ export class FxTreeComponent implements OnInit {
         return count;
     }
 
-    private isParentOf(possibleParent: FxTreeNodeInternal, possibleChild: FxTreeNodeInternal) {
-        let parent: FxTreeNodeInternal = possibleChild;
-        while (parent = parent._fxtree.parent) {
-            if (parent === possibleParent) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private initDragAndDrop(node: FxTreeNodeInternal, nodeContentDiv: HTMLDivElement, nodeContentWrapperDiv: HTMLDivElement) {
         nodeContentDiv.draggable = true;
         nodeContentDiv.ondragstart = (e) => { FxTreeComponent.setDragData(node); };
         nodeContentDiv.ondragover = (e) => {
             // Don't allow drag to own node or parent to child node
-            if (node !== FxTreeComponent.dragData && !this.isParentOf(FxTreeComponent.dragData, node)) {
+            if (node !== FxTreeComponent.dragData && !FxTreeUtil.isParentOf(FxTreeComponent.dragData, node)) {
                 // default: drop not allowed, preventDefault: drop allowed
                 e.preventDefault();
 
@@ -156,7 +161,7 @@ export class FxTreeComponent implements OnInit {
             draggedNode._fxtree.parent = parentNode;
             this.updateParentsChildCount(draggedNode, draggedNode._fxtree.currentChildCount + 1);
 
-            this.refresh(this.data);
+            this.refresh();
         };
         // nodeContentDiv.addEventListener('dragover', (e) => {
         //     nodeContentDiv.classList.add('fxtree-inside-indicator');
@@ -188,7 +193,7 @@ export class FxTreeComponent implements OnInit {
 
         const childrenExpanderWrapperSpan = document.createElement('span');
         childrenExpanderWrapperSpan.classList.add('fxtree-children-expander-wrapper');
-        childrenExpanderWrapperSpan.onclick = () => { this.toggleNode(node); this.refresh(this.data); };
+        childrenExpanderWrapperSpan.onclick = () => { this.toggleNode(node); this.refresh(); };
 
         const childrenExpanderSpan = document.createElement('span');
         childrenExpanderSpan.classList.add('fxtree-children-expander');
@@ -200,6 +205,7 @@ export class FxTreeComponent implements OnInit {
         nodeContentDiv.textContent = node.text + ' - ' + node._fxtree.index;
         nodeContentDiv.title = nodeContentDiv.textContent;
 
+        this.checkboxService.initCheckbox(node, nodeContentWrapperDiv);
         this.initDragAndDrop(node, nodeContentDiv, nodeContentWrapperDiv);
         nodeContentWrapperDiv.appendChild(nodeContentDiv);
         li.appendChild(nodeContentWrapperDiv);
@@ -250,7 +256,7 @@ export class FxTreeComponent implements OnInit {
         return elements;
     }
 
-    private refresh(data: FxTreeNode[]) {
+    public refresh() {
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
 
@@ -289,26 +295,6 @@ export class FxTreeComponent implements OnInit {
     }
 
     public onScroll(e: UIEvent) {
-        this.refresh(this.data);
+        this.refresh();
     }
-}
-
-interface FxTreeInternalData {
-    expanded: boolean;
-    level: number;
-    index: number;
-    parent: FxTreeNodeInternal;
-
-    currentChildCount?: number; // current displayed children (expanded/collapsed)
-    totalChildCount?: number; // total number of children (expanded)
-}
-
-interface FxTreeNodeInternal extends FxTreeNode {
-    _fxtree: FxTreeInternalData;
-    children: FxTreeNodeInternal[];
-}
-
-export interface FxTreeNode {
-    text: string;
-    children: FxTreeNode[];
 }

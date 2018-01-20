@@ -49,6 +49,7 @@ ngh
 ```
 
 ## Next Steps
+- Two way nodes binding
 - Node Selection
   - Checkbox
 - Virtualization (preload more rows and add additional rows instead of replacing all everytime)

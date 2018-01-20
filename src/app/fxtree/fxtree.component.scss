@@ -100,6 +100,7 @@ div {
     border-style: solid;
     border-width: $indicator-height/2 0 $indicator-height/2 $indicator-width;
     border-color: transparent transparent transparent black;
+    z-index: 10;
 }
 
 .fxtree-before-indicator::before {
@@ -120,4 +121,34 @@ div {
     top: 100%;
     transform: translateY(-50%);
     margin-left: $expander-width - $indicator-width - 6px; // expander width - indicator width - offset
+}
+
+// Checkbox
+.fxtree-checkbox {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 0;
+    margin-right: 8px;
+    width: 16px;
+    min-width: 16px;
+    height:  16px;
+
+    background-color: #dee2e6;
+    border-radius: 4px;
+
+    &.fxtree-checked {
+        background-color: #007bff;
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Cpath fill='%23fff' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26 2.974 7.25 8 2.193z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 50% 50%;
+    }
+
+    &.fxtree-indeterminate {
+        background-color: #007bff;
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4'%3E%3Cpath stroke='%23fff' d='M0 2h4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 50% 50%;
+    }
 }
