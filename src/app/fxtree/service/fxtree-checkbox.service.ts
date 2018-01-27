@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { FxTreeComponent } from '../fxtree.component';
-import { FxTreeNodeInternal } from '../model';
+import { FxTreeNodeInternal, FxTreePreNodeContentEventData } from '../model';
 import { FxTreeUtil } from '../util';
 import { CascadeStrategy } from '../enum';
 
@@ -11,6 +11,8 @@ export class FxTreeCheckboxService {
 
     public init(fxTree: FxTreeComponent) {
         this.fxTree = fxTree;
+        this.fxTree.preNodeContentInsert.subscribe(
+            (data: FxTreePreNodeContentEventData) => this.initCheckbox(data.node, data.nodeContentWrapperDiv));
     }
 
     public initCheckbox(node: FxTreeNodeInternal, nodeContentWrapperDiv: HTMLDivElement) {
@@ -37,6 +39,7 @@ export class FxTreeCheckboxService {
         // TODO: drag/drop cascade checkbox
         // TODO: get checked nodes
         // TODO: event: checked changed
+        // TODO: keep structural tree changes in FxTreeComponent e.g. insert-/removeNode
     }
 
     public cascadeDown(node: FxTreeNodeInternal) {

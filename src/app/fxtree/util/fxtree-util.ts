@@ -46,4 +46,11 @@ export class FxTreeUtil {
         }
         return false;
     }
+
+    public static updateParentsChildCount(node: FxTreeNodeInternal, childCountChange: number) {
+        let parent: FxTreeNodeInternal = node;
+        while (parent = parent._fxtree.parent) {
+            parent._fxtree.currentChildCount += childCountChange;
+        }
+    }
 }
