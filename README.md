@@ -48,9 +48,23 @@ ng build --prod --base-href "https://feberhard.github.io/fxtree/"
 ngh
 ```
 
+## Bundle Analyzer
+
+Generate stats.json with or without `--prod` flag
+```
+ng build --prod --stats-json
+```
+
+Run bundle analyzer
+```
+npm run bundle-report
+```
+
+
 ## Next Steps
 - Two way nodes binding
 - Node Selection
   - Checkbox
+    - Drag and Drop
 - Virtualization (preload more rows and add additional rows instead of replacing all everytime)
 - support angular templates for node content
