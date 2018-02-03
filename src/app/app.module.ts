@@ -4,12 +4,20 @@ import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
 import { FxTreeComponent } from './fxtree/fxtree.component';
+import {
+    FxTreeCollapseDirective,
+    FxTreeDragDropDirective,
+    FxTreeCheckboxDirective
+} from './fxtree/plugins';
 
 
 @NgModule({
     declarations: [
         AppComponent,
-        FxTreeComponent
+        FxTreeComponent,
+        FxTreeCollapseDirective,
+        FxTreeDragDropDirective,
+        FxTreeCheckboxDirective
     ],
     imports: [
         BrowserModule

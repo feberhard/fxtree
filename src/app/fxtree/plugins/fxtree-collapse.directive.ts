@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Host, Directive } from '@angular/core';
 
 import { FxTreeComponent } from '../fxtree.component';
 import { FxTreeNodeInternal, FxTreePreNodeContentEventData } from '../model';
 import { FxTreeUtil } from '../util';
 
-@Injectable()
-export class FxTreeCollapseService {
-    private fxTree: FxTreeComponent;
+@Directive({
+    selector: '[fxTreeCollapse]',
+})
+export class FxTreeCollapseDirective {
 
-    public init(fxTree: FxTreeComponent) {
-        this.fxTree = fxTree;
+    constructor( @Host() private fxTree: FxTreeComponent) {
+        console.log(fxTree);
         this.fxTree.preNodeContentInsert.subscribe(
             (data: FxTreePreNodeContentEventData) => this.initExpander(data.node, data.nodeContentWrapperDiv));
     }
@@ -52,3 +53,4 @@ export class FxTreeCollapseService {
         return count;
     }
 }
+

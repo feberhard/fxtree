@@ -1,32 +1,33 @@
-import { Injectable } from '@angular/core';
+import { Host, Directive } from '@angular/core';
 
 import { FxTreeComponent } from '../fxtree.component';
 import { FxTreeNodeInternal, FxTreePreNodeContentEventData } from '../model';
 import { FxTreeUtil } from '../util';
 
-@Injectable()
-export class FxTreeDragDropService {
+@Directive({
+    selector: '[fxTreeDragDrop]',
+})
+export class FxTreeDragDropDirective {
     public static dragData: FxTreeNodeInternal;
 
-    private fxTree: FxTreeComponent;
     private lastDragoverY: number;
 
-    public static setDragData(node: FxTreeNodeInternal) {
-        FxTreeDragDropService.dragData = node;
-    }
-
-    public init(fxTree: FxTreeComponent) {
-        this.fxTree = fxTree;
+    constructor( @Host() private fxTree: FxTreeComponent) {
+        console.log(fxTree);
         this.fxTree.preNodeContentInsert.subscribe(
             (data: FxTreePreNodeContentEventData) => this.initDragAndDrop(data.node, data.nodeContentDiv, data.nodeContentWrapperDiv));
     }
 
+    public static setDragData(node: FxTreeNodeInternal) {
+        FxTreeDragDropDirective.dragData = node;
+    }
+
     public initDragAndDrop(node: FxTreeNodeInternal, nodeContentDiv: HTMLDivElement, nodeContentWrapperDiv: HTMLDivElement) {
         nodeContentDiv.draggable = true;
-        nodeContentDiv.ondragstart = (e) => { FxTreeDragDropService.setDragData(node); };
+        nodeContentDiv.ondragstart = (e) => { FxTreeDragDropDirective.setDragData(node); };
         nodeContentDiv.ondragover = (e) => {
             // Don't allow drag to own node or parent to child node
-            if (node !== FxTreeDragDropService.dragData && !FxTreeUtil.isParentOf(FxTreeDragDropService.dragData, node)) {
+            if (node !== FxTreeDragDropDirective.dragData && !FxTreeUtil.isParentOf(FxTreeDragDropDirective.dragData, node)) {
                 // default: drop not allowed, preventDefault: drop allowed
                 e.preventDefault();
 
@@ -48,7 +49,7 @@ export class FxTreeDragDropService {
         };
         nodeContentDiv.ondrop = (e) => {
             e.preventDefault();
-            const draggedNode = FxTreeDragDropService.dragData;
+            const draggedNode = FxTreeDragDropDirective.dragData;
 
             let parentNode: FxTreeNodeInternal;
             let position: number;

@@ -5,17 +5,13 @@ import {
 import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData } from './model';
 import { CascadeStrategy } from './enum';
 import { FxTreeUtil } from './util';
-import { FxTreeCollapseService } from './service/fxtree-collapse.service';
-import { FxTreeDragDropService } from './service/fxtree-drag-drop.service';
-import { FxTreeCheckboxService } from './service/fxtree-checkbox.service';
 
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'fxtree',
     templateUrl: './fxtree.component.html',
     styleUrls: ['./fxtree.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    providers: [FxTreeCollapseService, FxTreeDragDropService, FxTreeCheckboxService]
+    encapsulation: ViewEncapsulation.None
 })
 export class FxTreeComponent implements OnInit {
 
@@ -34,19 +30,7 @@ export class FxTreeComponent implements OnInit {
     // Different browser have different max values for the height property
     private readonly maxNodeheightBreakPoint = 1000000;
 
-    constructor(
-        private el: ElementRef,
-        collapseService: FxTreeCollapseService,
-        dropDownService: FxTreeDragDropService,
-        checkboxService: FxTreeCheckboxService
-    ) {
-        collapseService.init(this);
-        dropDownService.init(this);
-        checkboxService.init(this);
-    }
-
-    public static setDragData(node: FxTreeNodeInternal) {
-        FxTreeDragDropService.setDragData(node);
+    constructor(private el: ElementRef) {
     }
 
     ngOnInit() {
@@ -101,7 +85,7 @@ export class FxTreeComponent implements OnInit {
         nodeContentDiv.textContent = node.text + ' - ' + node._fxtree.index;
         nodeContentDiv.title = nodeContentDiv.textContent;
 
-        this.preNodeContentInsert.emit({node, nodeContentDiv, nodeContentWrapperDiv});
+        this.preNodeContentInsert.emit({ node, nodeContentDiv, nodeContentWrapperDiv });
 
         nodeContentWrapperDiv.appendChild(nodeContentDiv);
         li.appendChild(nodeContentWrapperDiv);
