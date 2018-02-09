@@ -1,4 +1,4 @@
-import { FxTreeNodeInternal } from './fxtree-node-internal';
+import { FxTreeNodeInternal } from '../fxtree-node-internal';
 
 export interface FxTreePreNodeContentEventData {
     node: FxTreeNodeInternal;

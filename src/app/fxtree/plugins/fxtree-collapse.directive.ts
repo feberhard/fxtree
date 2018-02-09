@@ -11,7 +11,7 @@ export class FxTreeCollapseDirective {
 
     constructor( @Host() private fxTree: FxTreeComponent) {
         console.log(fxTree);
-        this.fxTree.preNodeContentInsert.subscribe(
+        this.fxTree.beforeNodeContentInsert.subscribe(
             (data: FxTreePreNodeContentEventData) => this.initExpander(data.node, data.nodeContentWrapperDiv));
     }
 

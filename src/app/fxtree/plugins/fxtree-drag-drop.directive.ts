@@ -14,7 +14,7 @@ export class FxTreeDragDropDirective {
 
     constructor( @Host() private fxTree: FxTreeComponent) {
         console.log(fxTree);
-        this.fxTree.preNodeContentInsert.subscribe(
+        this.fxTree.beforeNodeContentInsert.subscribe(
             (data: FxTreePreNodeContentEventData) => this.initDragAndDrop(data.node, data.nodeContentDiv, data.nodeContentWrapperDiv));
     }
 
@@ -50,20 +50,23 @@ export class FxTreeDragDropDirective {
         nodeContentDiv.ondrop = (e) => {
             e.preventDefault();
             const draggedNode = FxTreeDragDropDirective.dragData;
+            const oldParent = draggedNode._fxtree.parent;
 
-            let parentNode: FxTreeNodeInternal;
+            let newParent: FxTreeNodeInternal;
             let position: number;
 
             if (e.offsetY < this.fxTree.nodeHeight / 3) { // before
                 position = node._fxtree.parent.children.indexOf(node);
-                parentNode = node._fxtree.parent;
+                newParent = node._fxtree.parent;
             } else if (e.offsetY > 2 * this.fxTree.nodeHeight / 3) { // after
                 position = node._fxtree.parent.children.indexOf(node) + 1;
-                parentNode = node._fxtree.parent;
+                newParent = node._fxtree.parent;
             } else { // inside
-                parentNode = node;
+                newParent = node;
                 position = 0;
             }
+
+            this.fxTree.beforeNodeMoved.emit({ node: draggedNode, oldParent: oldParent, newParent: newParent });
 
             if (draggedNode._fxtree.parent) {
                 FxTreeUtil.updateParentsChildCount(draggedNode, -(draggedNode._fxtree.currentChildCount + 1));
@@ -71,12 +74,14 @@ export class FxTreeDragDropDirective {
                 draggedNode._fxtree.parent.children.splice(childIndex, 1);
             }
 
-            parentNode.children = parentNode.children || [];
-            parentNode.children.splice(position, 0, draggedNode);
-            draggedNode._fxtree.parent = parentNode;
+            newParent.children = newParent.children || [];
+            newParent.children.splice(position, 0, draggedNode);
+            draggedNode._fxtree.parent = newParent;
             FxTreeUtil.updateParentsChildCount(draggedNode, draggedNode._fxtree.currentChildCount + 1);
 
-            this.fxTree.refresh();
+            this.fxTree.afterNodeMoved.emit({ node: draggedNode, oldParent: oldParent, newParent: newParent });
+
+            this.fxTree.queueRefresh();
         };
         // nodeContentDiv.addEventListener('dragover', (e) => {
         //     nodeContentDiv.classList.add('fxtree-inside-indicator');

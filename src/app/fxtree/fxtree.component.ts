@@ -2,7 +2,7 @@ import {
     Component, OnInit, Input, ElementRef, ViewEncapsulation, HostListener, Output, EventEmitter
 } from '@angular/core';
 
-import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData } from './model';
+import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData, FxTreeNodeMovedEventData } from './model';
 import { CascadeStrategy } from './enum';
 import { FxTreeUtil } from './util';
 
@@ -15,16 +15,19 @@ import { FxTreeUtil } from './util';
 })
 export class FxTreeComponent implements OnInit {
 
-    @Input() data: FxTreeNodeInternal[];
-    @Input() nodeHeight = 24;
-    @Input() enableCheckbox = true;
-    @Input() cascadeStrategy = CascadeStrategy.UpAndDown;
-    @Input() useIndeterminate = true;
-    @Output() preNodeContentInsert = new EventEmitter<FxTreePreNodeContentEventData>(false);
+    @Input() public data: FxTreeNodeInternal[];
+    @Input() public nodeHeight = 24;
+    @Input() public enableCheckbox = true;
+    @Input() public cascadeStrategy = CascadeStrategy.UpAndDown;
+    @Input() public useIndeterminate = true;
+    @Output() public beforeNodeContentInsert = new EventEmitter<FxTreePreNodeContentEventData>(false);
+    @Output() public beforeNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
+    @Output() public afterNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
 
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
     private virtualRootNode: FxTreeNodeInternal;
+    private isRefreshQueued = false;
 
     // https://stackoverflow.com/questions/28260889/set-large-value-to-divs-height
     // Different browser have different max values for the height property
@@ -85,7 +88,7 @@ export class FxTreeComponent implements OnInit {
         nodeContentDiv.textContent = node.text + ' - ' + node._fxtree.index;
         nodeContentDiv.title = nodeContentDiv.textContent;
 
-        this.preNodeContentInsert.emit({ node, nodeContentDiv, nodeContentWrapperDiv });
+        this.beforeNodeContentInsert.emit({ node, nodeContentDiv, nodeContentWrapperDiv });
 
         nodeContentWrapperDiv.appendChild(nodeContentDiv);
         li.appendChild(nodeContentWrapperDiv);
@@ -136,6 +139,17 @@ export class FxTreeComponent implements OnInit {
         return elements;
     }
 
+    public queueRefresh() {
+        if (this.isRefreshQueued) {
+            return;
+        }
+        this.isRefreshQueued = true;
+        requestAnimationFrame(() => {
+            this.refresh();
+            this.isRefreshQueued = false;
+        });
+    }
+
     public refresh() {
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
@@ -176,5 +190,9 @@ export class FxTreeComponent implements OnInit {
 
     public onScroll(e: UIEvent) {
         this.refresh();
+    }
+
+    public forAll(action: (node: FxTreeNodeInternal) => void) {
+        this.data.forEach(node => FxTreeUtil.forAll(node, action));
     }
 }
