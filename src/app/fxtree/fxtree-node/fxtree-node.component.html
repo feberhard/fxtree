@@ -1,0 +1,11 @@
+<div class="fxtree-node-content-wrapper" [style.height.px]="nodeHeight" *ngIf="contentNode.node">
+    <span class="fxtree-children-expander-wrapper" (click)="toggleNode(contentNode.node)">
+        <span class="fxtree-children-expander"></span>
+    </span>
+    <span class="fxtree-node-content" [title]="contentNode.node.text">
+        {{ contentNode.node.text }} - {{ contentNode.node._fxtree.index }}
+    </span>
+</div>
+<ul *ngIf="contentNode.children" class="fxtree-children">
+    <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight" (requestRefresh)="requestRefresh.emit()"></fxtree-node>
+</ul>

@@ -9,6 +9,7 @@ import {
     FxTreeDragDropDirective,
     FxTreeCheckboxDirective
 } from './fxtree/plugins';
+import { FxTreeNodeComponent } from './fxtree/fxtree-node/fxtree-node.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import {
         FxTreeComponent,
         FxTreeCollapseDirective,
         FxTreeDragDropDirective,
-        FxTreeCheckboxDirective
+        FxTreeCheckboxDirective,
+        FxTreeNodeComponent
     ],
     imports: [
         BrowserModule

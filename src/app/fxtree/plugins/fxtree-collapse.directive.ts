@@ -53,4 +53,3 @@ export class FxTreeCollapseDirective {
         return count;
     }
 }
-

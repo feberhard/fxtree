@@ -6,6 +6,15 @@ import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData, FxTreeNo
 import { CascadeStrategy } from './enum';
 import { FxTreeUtil } from './util';
 
+export interface HeightNode {
+    height: number;
+}
+
+export interface ContentNode {
+    node?: FxTreeNodeInternal;
+    children?: ContentNode[];
+}
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'fxtree',
@@ -24,6 +33,10 @@ export class FxTreeComponent implements OnInit {
     @Output() public beforeNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
     @Output() public afterNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
 
+    public topNodes: HeightNode[] = [];
+    public contentNodes: ContentNode[] = [];
+    public bottomNodes: HeightNode[] = [];
+
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
     private virtualRootNode: FxTreeNodeInternal;
@@ -38,9 +51,7 @@ export class FxTreeComponent implements OnInit {
 
     ngOnInit() {
         this.host = <HTMLDivElement>(document.getElementsByClassName('fxtree-container')[0]);
-        this.hostUl = document.createElement('ul');
-        this.hostUl.classList.add('fxtree-root');
-        this.host.appendChild(this.hostUl);
+        this.hostUl = <HTMLUListElement>(document.getElementsByClassName('fxtree-root')[0]);
 
         this.virtualRootNode = <FxTreeNodeInternal>{};
         this.virtualRootNode.children = this.data;
@@ -67,37 +78,8 @@ export class FxTreeComponent implements OnInit {
         return index;
     }
 
-    private getNodeElement(node: FxTreeNodeInternal) {
-        const li = document.createElement('li');
-        li.classList.add('fxtree-node');
-        if (node.children && node.children.length > 0) {
-            if (node._fxtree.expanded) {
-                li.classList.add('fxtree-node-expanded');
-            } else {
-                li.classList.add('fxtree-node-collapsed');
-            }
-        }
-
-        const nodeContentWrapperDiv = document.createElement('div');
-        nodeContentWrapperDiv.classList.add('fxtree-node-content-wrapper');
-        nodeContentWrapperDiv.style.height = this.nodeHeight + 'px';
-        nodeContentWrapperDiv.style.lineHeight = this.nodeHeight + 'px';
-
-        const nodeContentDiv = document.createElement('div');
-        nodeContentDiv.classList.add('fxtree-node-content');
-        nodeContentDiv.textContent = node.text + ' - ' + node._fxtree.index;
-        nodeContentDiv.title = nodeContentDiv.textContent;
-
-        this.beforeNodeContentInsert.emit({ node, nodeContentDiv, nodeContentWrapperDiv });
-
-        nodeContentWrapperDiv.appendChild(nodeContentDiv);
-        li.appendChild(nodeContentWrapperDiv);
-
-        return li;
-    }
-
-    private getTreeElements(data: FxTreeNodeInternal[], startIndex: number, count: number, currentIndex: number = -1): HTMLElement[] {
-        const elements: HTMLElement[] = [];
+    private getTreeElements(data: FxTreeNodeInternal[], startIndex: number, count: number, currentIndex: number = -1): ContentNode[] {
+        const elements: ContentNode[] = [];
 
         for (let i = 0; i < data.length; i++) {
             currentIndex++;
@@ -107,25 +89,22 @@ export class FxTreeComponent implements OnInit {
                 return elements;
             }
 
-            let li: HTMLLIElement;
+            let contentNode: ContentNode;
             if (currentIndex >= startIndex) {
-                li = this.getNodeElement(currentNode);
+                contentNode = { node: currentNode, children: [] };
 
-                elements.push(li);
+                elements.push(contentNode);
                 count--;
             }
 
             if (currentNode._fxtree.currentChildCount > 0
                 && currentIndex + currentNode._fxtree.currentChildCount >= startIndex
             ) {
-                const subtreeUl = document.createElement('ul');
-                subtreeUl.classList.add('fxtree-children');
                 const subNodes = this.getTreeElements(currentNode.children, startIndex, count, currentIndex);
-                subNodes.forEach(n => subtreeUl.appendChild(n));
-                if (li) {
-                    li.appendChild(subtreeUl);
+                if (contentNode) {
+                    contentNode.children = subNodes;
                 } else {
-                    elements.push(subtreeUl);
+                    elements.push({ children: subNodes });
                 }
                 count -= currentNode._fxtree.currentChildCount;
                 if (startIndex > currentIndex) {
@@ -164,26 +143,17 @@ export class FxTreeComponent implements OnInit {
         const bottomElements = this.virtualRootNode._fxtree.currentChildCount - topElements - maxDisplayCount;
         let bottomHeight = bottomElements * this.nodeHeight;
 
-        this.hostUl.innerHTML = '';
-
+        this.topNodes = [];
         while (topHeight > 0) {
-            const topLi = document.createElement('li');
-            topLi.classList.add('fxtree-node');
-            topLi.textContent = 'top';
-            topLi.style.height = Math.min(topHeight, this.maxNodeheightBreakPoint) + 'px';
-            this.hostUl.appendChild(topLi);
+            this.topNodes.push({ height: Math.min(topHeight, this.maxNodeheightBreakPoint) });
             topHeight -= this.maxNodeheightBreakPoint;
         }
 
-        const contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
-        contentNodes.forEach(n => this.hostUl.appendChild(n));
+        this.contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
 
+        this.bottomNodes = [];
         while (bottomHeight > 0) {
-            const bottomLi = document.createElement('li');
-            bottomLi.classList.add('fxtree-node');
-            bottomLi.textContent = 'bottom';
-            bottomLi.style.height = Math.min(bottomHeight, this.maxNodeheightBreakPoint) + 'px';
-            this.hostUl.appendChild(bottomLi);
+            this.bottomNodes.push({ height: Math.min(bottomHeight, this.maxNodeheightBreakPoint) });
             bottomHeight -= this.maxNodeheightBreakPoint;
         }
     }

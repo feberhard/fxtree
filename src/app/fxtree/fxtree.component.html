@@ -1,3 +1,9 @@
 <div class="fxtree-container" (scroll)="onScroll($event)">
+    <ul class="fxtree-root">
+        <div *ngFor="let topNode of topNodes" [style.height.px]="topNode.height"></div>
 
+        <fxtree-node *ngFor="let node of contentNodes" [contentNode]="node" (requestRefresh)="refresh()"></fxtree-node>
+
+        <div *ngFor="let bottomNode of bottomNodes" [style.height.px]="bottomNode.height"></div>
+    </ul>
 </div>
