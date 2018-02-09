@@ -6,6 +6,10 @@ import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData, FxTreeNo
 import { CascadeStrategy } from './enum';
 import { FxTreeUtil } from './util';
 
+export interface HeightNode {
+    height: number;
+}
+
 @Component({
     // tslint:disable-next-line:component-selector
     selector: 'fxtree',
@@ -23,6 +27,10 @@ export class FxTreeComponent implements OnInit {
     @Output() public beforeNodeContentInsert = new EventEmitter<FxTreePreNodeContentEventData>(false);
     @Output() public beforeNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
     @Output() public afterNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
+
+    public topNodes: HeightNode[];
+    public contentNodes: FxTreeNodeInternal[];
+    public bottomNodes: HeightNode[];
 
     private host: HTMLElement;
     private hostUl: HTMLUListElement;
@@ -67,6 +75,36 @@ export class FxTreeComponent implements OnInit {
         return index;
     }
 
+    public toggleNode(node: FxTreeNodeInternal) {
+        if (node._fxtree.totalChildCount === 0) {
+            return;
+        }
+
+        node._fxtree.expanded = !node._fxtree.expanded;
+        const oldChildCount = node._fxtree.currentChildCount;
+        if (!node._fxtree.expanded) {
+            node._fxtree.currentChildCount = 0;
+        } else {
+            node._fxtree.currentChildCount = this.countExpandedChildren(node);
+        }
+        FxTreeUtil.updateParentsChildCount(node, node._fxtree.currentChildCount - oldChildCount);
+
+        this.refresh();
+    }
+
+    public countExpandedChildren(node: FxTreeNodeInternal): number {
+        let count = 0;
+        if (node.children) {
+            for (let i = 0; i < node.children.length; i++) {
+                count++;
+                if (node.children[i]._fxtree.expanded) {
+                    count += this.countExpandedChildren(node.children[i]);
+                }
+            }
+        }
+        return count;
+    }
+
     private getNodeElement(node: FxTreeNodeInternal) {
         const li = document.createElement('li');
         li.classList.add('fxtree-node');
@@ -96,8 +134,13 @@ export class FxTreeComponent implements OnInit {
         return li;
     }
 
-    private getTreeElements(data: FxTreeNodeInternal[], startIndex: number, count: number, currentIndex: number = -1): HTMLElement[] {
-        const elements: HTMLElement[] = [];
+    private getTreeElements(
+        data: FxTreeNodeInternal[],
+        startIndex: number,
+        count: number,
+        currentIndex: number = -1
+    ): FxTreeNodeInternal[] {
+        const elements: FxTreeNodeInternal[] = [];
 
         for (let i = 0; i < data.length; i++) {
             currentIndex++;
@@ -107,26 +150,17 @@ export class FxTreeComponent implements OnInit {
                 return elements;
             }
 
-            let li: HTMLLIElement;
             if (currentIndex >= startIndex) {
-                li = this.getNodeElement(currentNode);
-
-                elements.push(li);
+                elements.push(currentNode);
                 count--;
             }
 
             if (currentNode._fxtree.currentChildCount > 0
                 && currentIndex + currentNode._fxtree.currentChildCount >= startIndex
             ) {
-                const subtreeUl = document.createElement('ul');
-                subtreeUl.classList.add('fxtree-children');
                 const subNodes = this.getTreeElements(currentNode.children, startIndex, count, currentIndex);
-                subNodes.forEach(n => subtreeUl.appendChild(n));
-                if (li) {
-                    li.appendChild(subtreeUl);
-                } else {
-                    elements.push(subtreeUl);
-                }
+                elements.push(...subNodes);
+
                 count -= currentNode._fxtree.currentChildCount;
                 if (startIndex > currentIndex) {
                     count += startIndex - currentIndex - 1;
@@ -166,24 +200,17 @@ export class FxTreeComponent implements OnInit {
 
         this.hostUl.innerHTML = '';
 
+        this.topNodes = [];
         while (topHeight > 0) {
-            const topLi = document.createElement('li');
-            topLi.classList.add('fxtree-node');
-            topLi.textContent = 'top';
-            topLi.style.height = Math.min(topHeight, this.maxNodeheightBreakPoint) + 'px';
-            this.hostUl.appendChild(topLi);
+            this.topNodes.push({ height: Math.min(topHeight, this.maxNodeheightBreakPoint) });
             topHeight -= this.maxNodeheightBreakPoint;
         }
 
-        const contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
-        contentNodes.forEach(n => this.hostUl.appendChild(n));
+        this.contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
 
+        this.bottomNodes = [];
         while (bottomHeight > 0) {
-            const bottomLi = document.createElement('li');
-            bottomLi.classList.add('fxtree-node');
-            bottomLi.textContent = 'bottom';
-            bottomLi.style.height = Math.min(bottomHeight, this.maxNodeheightBreakPoint) + 'px';
-            this.hostUl.appendChild(bottomLi);
+            this.bottomNodes.push({ height: Math.min(bottomHeight, this.maxNodeheightBreakPoint) });
             bottomHeight -= this.maxNodeheightBreakPoint;
         }
     }

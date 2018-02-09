@@ -70,7 +70,7 @@ div {
     border-width: 0;
 }
 
-.fxtree-node-expanded>.fxtree-node-content-wrapper {
+.fxtree-node.fxtree-node-expanded {
     .fxtree-children-expander-wrapper {
         cursor: pointer;
         .fxtree-children-expander {
@@ -80,7 +80,7 @@ div {
     }
 }
 
-.fxtree-node-collapsed>.fxtree-node-content-wrapper {
+.fxtree-node.fxtree-node-collapsed {
     .fxtree-children-expander-wrapper {
         cursor: pointer;
         .fxtree-children-expander {
