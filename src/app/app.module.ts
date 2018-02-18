@@ -5,8 +5,6 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { FxTreeComponent } from './fxtree/fxtree.component';
 import {
-    FxTreeCollapseDirective,
-    FxTreeDragDropDirective,
     FxTreeCheckboxDirective
 } from './fxtree/plugins';
 import { FxTreeNodeComponent } from './fxtree/fxtree-node/fxtree-node.component';
@@ -16,8 +14,6 @@ import { FxTreeNodeComponent } from './fxtree/fxtree-node/fxtree-node.component'
     declarations: [
         AppComponent,
         FxTreeComponent,
-        FxTreeCollapseDirective,
-        FxTreeDragDropDirective,
         FxTreeCheckboxDirective,
         FxTreeNodeComponent
     ],

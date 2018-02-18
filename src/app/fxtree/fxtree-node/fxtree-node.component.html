@@ -1,14 +1,38 @@
-<div class="fxtree-node-content-wrapper" [style.height.px]="nodeHeight" *ngIf="contentNode.node">
-    <span class="fxtree-children-expander-wrapper" (click)="toggleNode(contentNode.node)">
+<div
+    *ngIf="contentNode.node"
+    class="fxtree-node-content-wrapper"
+    [ngClass]="dropIndicatorClass"
+    [style.height.px]="nodeHeight"
+    draggable="true"
+    (dragstart)="dragStart($event)"
+    (dragover)="dragOver($event)"
+    (dragleave)="dragLeave($event)"
+    (drop)="drop($event)">
+
+    <span
+        class="fxtree-children-expander-wrapper"
+        (click)="toggleNode(contentNode.node)">
+
         <span class="fxtree-children-expander"></span>
+
     </span>
-    <span class="fxtree-node-content" [title]="contentNode.node.text" *ngIf="!nodeContentTemplate; else templateNodeContent">
+
+    <span
+        *ngIf="!nodeContentTemplate; else templateNodeContent"
+        class="fxtree-node-content"
+        [title]="contentNode.node.text">
+
         {{ contentNode.node.text }} - {{ contentNode.node._fxtree.index }}
+
     </span>
+
     <ng-template #templateNodeContent>
-        <ng-template [ngTemplateOutlet]="nodeContentTemplate" [ngTemplateOutletContext]="{$implicit: contentNode.node, node: contentNode.node}">
+        <ng-template
+            [ngTemplateOutlet]="nodeContentTemplate"
+            [ngTemplateOutletContext]="{$implicit: contentNode.node, node: contentNode.node}">
         </ng-template>
     </ng-template>
+
 </div>
 <ul *ngIf="contentNode.children" class="fxtree-children">
     <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight" [nodeContentTemplate]="nodeContentTemplate"></fxtree-node>

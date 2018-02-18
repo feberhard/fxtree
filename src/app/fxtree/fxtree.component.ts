@@ -23,6 +23,7 @@ export interface ContentNode {
     encapsulation: ViewEncapsulation.None
 })
 export class FxTreeComponent implements OnInit {
+    public static dragData: FxTreeNodeInternal;
 
     @Input() public data: FxTreeNodeInternal[];
     @Input() public nodeHeight = 24;
@@ -57,16 +58,17 @@ export class FxTreeComponent implements OnInit {
     constructor() {
     }
 
-    ngOnInit() {
+    public static setDragData(node: FxTreeNodeInternal) {
+        FxTreeComponent.dragData = node;
+    }
+
+    public ngOnInit() {
         this.host = <HTMLDivElement>(document.getElementsByClassName('fxtree-container')[0]);
         this.hostUl = <HTMLUListElement>(document.getElementsByClassName('fxtree-root')[0]);
 
         this.virtualRootNode = <FxTreeNodeInternal>{};
         this.virtualRootNode.children = this.data;
         this.indexData([this.virtualRootNode], null, -1, -1);
-
-        console.log(this.virtualRootNode._fxtree.currentChildCount);
-        // console.log(this.data);
 
         this.getTreeElements(this.data, 3, 5);
 
