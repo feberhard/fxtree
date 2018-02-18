@@ -45,6 +45,10 @@ export class FxTreeComponent implements OnInit {
     // https://stackoverflow.com/questions/28260889/set-large-value-to-divs-height
     // Different browser have different max values for the height property
     private readonly maxNodeheightBreakPoint = 1000000;
+    private renderBlockSize = 50;
+    private lastStartIndex = 0;
+    private lastRenderedStartIndex = Number.MAX_SAFE_INTEGER;
+    private renderThreshold = 5;
 
     constructor(private el: ElementRef) {
     }
@@ -129,19 +133,46 @@ export class FxTreeComponent implements OnInit {
         });
     }
 
-    public refresh() {
+    public refresh(force: boolean = false) {
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
+        const renderBlockSize = Math.max(this.renderBlockSize, maxDisplayCount);
+        const blockHeight = renderBlockSize * this.nodeHeight;
 
         const scrollTop = this.host.scrollTop;
 
-        const topElements = Math.min(
+        const topInvisibleElementsCount = Math.min(
             Math.floor(scrollTop / this.nodeHeight),
             this.virtualRootNode._fxtree.currentChildCount - maxDisplayCount);
-        let topHeight = topElements * this.nodeHeight;
+        let topHeight = topInvisibleElementsCount * this.nodeHeight;
 
-        const bottomElements = this.virtualRootNode._fxtree.currentChildCount - topElements - maxDisplayCount;
-        let bottomHeight = bottomElements * this.nodeHeight;
+        let scrollDirectionDown = true;
+        if (topInvisibleElementsCount < this.lastStartIndex) {
+            scrollDirectionDown = false;
+        }
+
+        this.lastStartIndex = topInvisibleElementsCount;
+
+        if (!force
+            && topInvisibleElementsCount > (this.lastRenderedStartIndex + this.renderThreshold)
+            && (topInvisibleElementsCount + maxDisplayCount) < (this.lastRenderedStartIndex + renderBlockSize - this.renderThreshold)
+        ) {
+            // Current visible area is already rendered
+            return;
+        }
+
+        let bottomElementsCount: number;
+        if (scrollDirectionDown) {
+            bottomElementsCount = this.virtualRootNode._fxtree.currentChildCount - topInvisibleElementsCount - renderBlockSize;
+            this.lastRenderedStartIndex = topInvisibleElementsCount;
+        } else {
+            bottomElementsCount = this.virtualRootNode._fxtree.currentChildCount - topInvisibleElementsCount - maxDisplayCount;
+            const topRenderCount = this.virtualRootNode._fxtree.currentChildCount - bottomElementsCount - renderBlockSize;
+            topHeight = topRenderCount * this.nodeHeight;
+            this.lastRenderedStartIndex = topRenderCount;
+        }
+
+        let bottomHeight = bottomElementsCount * this.nodeHeight;
 
         this.topNodes = [];
         while (topHeight > 0) {
@@ -149,13 +180,15 @@ export class FxTreeComponent implements OnInit {
             topHeight -= this.maxNodeheightBreakPoint;
         }
 
-        this.contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
+        this.contentNodes = this.getTreeElements(this.data, topInvisibleElementsCount, renderBlockSize);
 
         this.bottomNodes = [];
         while (bottomHeight > 0) {
             this.bottomNodes.push({ height: Math.min(bottomHeight, this.maxNodeheightBreakPoint) });
             bottomHeight -= this.maxNodeheightBreakPoint;
         }
+
+        console.log('refresh');
     }
 
     public onScroll(e: UIEvent) {

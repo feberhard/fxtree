@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 
 import { FxTreeNodeInternal } from '../model';
-import { ContentNode } from '../fxtree.component';
+import { ContentNode, FxTreeComponent } from '../fxtree.component';
 import { FxTreeUtil } from '../util';
 
 @Component({
@@ -17,13 +17,12 @@ export class FxTreeNodeComponent implements OnInit {
 
     @Input() public contentNode: ContentNode;
     @Input() public nodeHeight = 24;
-    @Output() public requestRefresh = new EventEmitter<void>();
 
     @HostBinding('class.fxtree-node') fxTreeNodeClass = true;
     @HostBinding('class.fxtree-node-expanded') fxTreeNodeExpandedClass = false;
     @HostBinding('class.fxtree-node-collapsed') fxTreeNodeCollapsedClass = false;
 
-    constructor() {
+    constructor(private fxTree: FxTreeComponent) {
     }
 
     ngOnInit(): void {
@@ -44,7 +43,7 @@ export class FxTreeNodeComponent implements OnInit {
         }
         FxTreeUtil.updateParentsChildCount(node, node._fxtree.currentChildCount - oldChildCount);
 
-        this.requestRefresh.emit();
+        this.fxTree.refresh(true);
     }
 
     public countExpandedChildren(node: FxTreeNodeInternal): number {

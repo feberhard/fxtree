@@ -7,5 +7,5 @@
     </span>
 </div>
 <ul *ngIf="contentNode.children" class="fxtree-children">
-    <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight" (requestRefresh)="requestRefresh.emit()"></fxtree-node>
+    <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight"></fxtree-node>
 </ul>
