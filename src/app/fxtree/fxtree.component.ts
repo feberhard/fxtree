@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, Input, ElementRef, ViewEncapsulation, HostListener, Output, EventEmitter
+    Component, OnInit, Input, ViewEncapsulation, Output, EventEmitter, ContentChild, TemplateRef
 } from '@angular/core';
 
 import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData, FxTreeNodeMovedEventData } from './model';
@@ -29,9 +29,13 @@ export class FxTreeComponent implements OnInit {
     @Input() public enableCheckbox = true;
     @Input() public cascadeStrategy = CascadeStrategy.UpAndDown;
     @Input() public useIndeterminate = true;
+
     @Output() public beforeNodeContentInsert = new EventEmitter<FxTreePreNodeContentEventData>(false);
     @Output() public beforeNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
     @Output() public afterNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
+
+    @ContentChild('fxtreeNodeContentTemplate')
+    public nodeContentTemplate: TemplateRef<any>;
 
     public topNodes: HeightNode[] = [];
     public contentNodes: ContentNode[] = [];
@@ -50,7 +54,7 @@ export class FxTreeComponent implements OnInit {
     private lastRenderedStartIndex = Number.MAX_SAFE_INTEGER;
     private renderThreshold = 5;
 
-    constructor(private el: ElementRef) {
+    constructor() {
     }
 
     ngOnInit() {
@@ -137,7 +141,6 @@ export class FxTreeComponent implements OnInit {
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
         const renderBlockSize = Math.max(this.renderBlockSize, maxDisplayCount);
-        const blockHeight = renderBlockSize * this.nodeHeight;
 
         const scrollTop = this.host.scrollTop;
 

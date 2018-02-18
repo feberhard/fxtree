@@ -2,10 +2,14 @@
     <span class="fxtree-children-expander-wrapper" (click)="toggleNode(contentNode.node)">
         <span class="fxtree-children-expander"></span>
     </span>
-    <span class="fxtree-node-content" [title]="contentNode.node.text">
+    <span class="fxtree-node-content" [title]="contentNode.node.text" *ngIf="!nodeContentTemplate; else templateNodeContent">
         {{ contentNode.node.text }} - {{ contentNode.node._fxtree.index }}
     </span>
+    <ng-template #templateNodeContent>
+        <ng-template [ngTemplateOutlet]="nodeContentTemplate" [ngTemplateOutletContext]="{$implicit: contentNode.node, node: contentNode.node}">
+        </ng-template>
+    </ng-template>
 </div>
 <ul *ngIf="contentNode.children" class="fxtree-children">
-    <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight"></fxtree-node>
+    <fxtree-node *ngFor="let node of contentNode.children" [contentNode]="node" [nodeHeight]="nodeHeight" [nodeContentTemplate]="nodeContentTemplate"></fxtree-node>
 </ul>

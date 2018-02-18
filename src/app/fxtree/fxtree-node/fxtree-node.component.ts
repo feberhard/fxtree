@@ -1,5 +1,5 @@
 import {
-    Component, OnInit, Input, ViewEncapsulation, HostBinding, EventEmitter, Output, ViewChildren
+    Component, OnInit, Input, ViewEncapsulation, HostBinding, TemplateRef
 } from '@angular/core';
 
 import { FxTreeNodeInternal } from '../model';
@@ -17,10 +17,13 @@ export class FxTreeNodeComponent implements OnInit {
 
     @Input() public contentNode: ContentNode;
     @Input() public nodeHeight = 24;
+    @Input() public nodeContentTemplate: TemplateRef<any>;
 
     @HostBinding('class.fxtree-node') fxTreeNodeClass = true;
     @HostBinding('class.fxtree-node-expanded') fxTreeNodeExpandedClass = false;
     @HostBinding('class.fxtree-node-collapsed') fxTreeNodeCollapsedClass = false;
+
+    // public nodeContentTemplateContext = { $implicit: this.contentNode.node, node: this.contentNode.node };
 
     constructor(private fxTree: FxTreeComponent) {
     }

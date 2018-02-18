@@ -1,4 +1,9 @@
 <div class="wrapper">
     <fxtree [data]="tree" [nodeHeight]="24">
+        <ng-template #fxtreeNodeContentTemplate let-node>
+            <span class="fxtree-node-content" [title]="node.text + ' ' + node._fxtree.index">
+                {{ node.text }} {{ node._fxtree.index }}
+            </span>
+        </ng-template>
     </fxtree>
 </div>
