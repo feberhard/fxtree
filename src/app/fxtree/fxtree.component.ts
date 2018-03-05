@@ -18,6 +18,7 @@ export interface HeightNode {
     encapsulation: ViewEncapsulation.None
 })
 export class FxTreeComponent implements OnInit {
+    public static dragData: FxTreeNodeInternal;
 
     @Input() public data: FxTreeNodeInternal[];
     @Input() public nodeHeight = 24;
@@ -44,7 +45,11 @@ export class FxTreeComponent implements OnInit {
     constructor(private el: ElementRef) {
     }
 
-    ngOnInit() {
+    public static setDragData(node: FxTreeNodeInternal) {
+        FxTreeComponent.dragData = node;
+    }
+
+    public ngOnInit() {
         this.host = <HTMLDivElement>(document.getElementsByClassName('fxtree-container')[0]);
         this.hostUl = document.createElement('ul');
         this.hostUl.classList.add('fxtree-root');
@@ -73,65 +78,6 @@ export class FxTreeComponent implements OnInit {
             internalNode._fxtree.currentChildCount = internalNode._fxtree.totalChildCount = index - internalNode._fxtree.index - 1;
         }
         return index;
-    }
-
-    public toggleNode(node: FxTreeNodeInternal) {
-        if (node._fxtree.totalChildCount === 0) {
-            return;
-        }
-
-        node._fxtree.expanded = !node._fxtree.expanded;
-        const oldChildCount = node._fxtree.currentChildCount;
-        if (!node._fxtree.expanded) {
-            node._fxtree.currentChildCount = 0;
-        } else {
-            node._fxtree.currentChildCount = this.countExpandedChildren(node);
-        }
-        FxTreeUtil.updateParentsChildCount(node, node._fxtree.currentChildCount - oldChildCount);
-
-        this.refresh();
-    }
-
-    public countExpandedChildren(node: FxTreeNodeInternal): number {
-        let count = 0;
-        if (node.children) {
-            for (let i = 0; i < node.children.length; i++) {
-                count++;
-                if (node.children[i]._fxtree.expanded) {
-                    count += this.countExpandedChildren(node.children[i]);
-                }
-            }
-        }
-        return count;
-    }
-
-    private getNodeElement(node: FxTreeNodeInternal) {
-        const li = document.createElement('li');
-        li.classList.add('fxtree-node');
-        if (node.children && node.children.length > 0) {
-            if (node._fxtree.expanded) {
-                li.classList.add('fxtree-node-expanded');
-            } else {
-                li.classList.add('fxtree-node-collapsed');
-            }
-        }
-
-        const nodeContentWrapperDiv = document.createElement('div');
-        nodeContentWrapperDiv.classList.add('fxtree-node-content-wrapper');
-        nodeContentWrapperDiv.style.height = this.nodeHeight + 'px';
-        nodeContentWrapperDiv.style.lineHeight = this.nodeHeight + 'px';
-
-        const nodeContentDiv = document.createElement('div');
-        nodeContentDiv.classList.add('fxtree-node-content');
-        nodeContentDiv.textContent = node.text + ' - ' + node._fxtree.index;
-        nodeContentDiv.title = nodeContentDiv.textContent;
-
-        this.beforeNodeContentInsert.emit({ node, nodeContentDiv, nodeContentWrapperDiv });
-
-        nodeContentWrapperDiv.appendChild(nodeContentDiv);
-        li.appendChild(nodeContentWrapperDiv);
-
-        return li;
     }
 
     private getTreeElements(
@@ -184,7 +130,7 @@ export class FxTreeComponent implements OnInit {
         });
     }
 
-    public refresh() {
+    public refresh(force: boolean = false) {
         const hostHeight = this.host.clientHeight;
         const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
 

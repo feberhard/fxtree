@@ -1,21 +1,18 @@
 <div class="fxtree-container" (scroll)="onScroll($event)">
 
-    <div *ngFor="let topNode of topNodes" [style.height.px]="topNode.height"></div>
-
-    <div *ngFor="let node of contentNodes"
-        class="fxtree-node"
-        [style.height.px]="nodeHeight"
-        [style.padding-left.px]="node._fxtree.level * 20"
-        [class.fxtree-node-collapsed]="!node._fxtree.expanded && node._fxtree.totalChildCount > 0"
-        [class.fxtree-node-expanded]="node._fxtree.expanded && node._fxtree.totalChildCount > 0">
-        <!-- <div class="fxtree-node-content-wrapper"> -->
-            <span class="fxtree-children-expander-wrapper" (click)="toggleNode(node)">
-                <span class="fxtree-children-expander"></span>
-            </span>
-            <span class="fxtree-node-content">{{ node.text }}</span>
-        <!-- </div> -->
+    <div
+        *ngFor="let topNode of topNodes"
+        [style.height.px]="topNode.height">
     </div>
 
-    <div *ngFor="let bottomNode of bottomNodes" [style.height.px]="bottomNode.height"></div>
+    <fxtree-node
+        *ngFor="let node of contentNodes"
+        [node]="node">
+    </fxtree-node>
+
+    <div
+        *ngFor="let bottomNode of bottomNodes"
+        [style.height.px]="bottomNode.height">
+    </div>
 
 </div>

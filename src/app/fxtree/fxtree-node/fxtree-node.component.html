@@ -1,0 +1,43 @@
+<div
+    class="fxtree-node"
+    [style.height.px]="nodeHeight"
+    [style.padding-left.px]="node._fxtree.level * 20"
+    [class.fxtree-node-collapsed]="!node._fxtree.expanded && node._fxtree.totalChildCount > 0"
+    [class.fxtree-node-expanded]="node._fxtree.expanded && node._fxtree.totalChildCount > 0">
+
+    <div
+        class="fxtree-node-content-wrapper"
+        [ngClass]="dropIndicatorClass"
+        [style.height.px]="nodeHeight"
+        draggable="true"
+        (dragstart)="dragStart($event)"
+        (dragover)="dragOver($event)"
+        (dragleave)="dragLeave($event)"
+        (drop)="drop($event)">
+
+        <span
+            class="fxtree-children-expander-wrapper"
+            (click)="toggleNode(node)">
+
+            <span class="fxtree-children-expander"></span>
+
+        </span>
+
+        <span
+            *ngIf="!nodeContentTemplate; else templateNodeContent"
+            class="fxtree-node-content"
+            [title]="node.text">
+
+            {{ node.text }} - {{ node._fxtree.index }}
+
+        </span>
+
+        <ng-template #templateNodeContent>
+            <ng-template
+                [ngTemplateOutlet]="nodeContentTemplate"
+                [ngTemplateOutletContext]="{$implicit: node, node: node}">
+            </ng-template>
+        </ng-template>
+
+    </div>
+</div>

@@ -53,4 +53,10 @@ export class FxTreeUtil {
             parent._fxtree.currentChildCount += childCountChange;
         }
     }
+
+    public static updateLevel(node: FxTreeNodeInternal): any {
+        FxTreeUtil.forAll(node, n => {
+            n._fxtree.level = n._fxtree.parent._fxtree.level + 1;
+        });
+    }
 }
