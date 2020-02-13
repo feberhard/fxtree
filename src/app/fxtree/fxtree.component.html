@@ -18,7 +18,10 @@
 
 <cdk-virtual-scroll-viewport [itemSize]="nodeHeight" style="height: 500px;">
     <fxtree-node
-        *cdkVirtualFor="let node of data"
+        *cdkVirtualFor="let node of dataSource"
         [node]="node">
     </fxtree-node>
+    <!-- <div *cdkVirtualFor="let node of dataSource">
+        {{ node.text }}
+    </div> -->
 </cdk-virtual-scroll-viewport>

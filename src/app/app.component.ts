@@ -17,9 +17,9 @@ export class AppComponent implements OnInit {
 
         // this.tree = this.generateTree(65000, 1);
         // this.tree = this.generateTree(2, 3);
-        this.tree = this.generateList(1000);
+        // this.tree = this.generateList(1000);
         // this.tree = this.generateTree(7, 6);
-        // this.tree = this.generateTree(5, 3);
+        this.tree = this.generateTree(5, 5);
         // this.tree = this.generateTree(3, 3);
     }
 

@@ -39,16 +39,17 @@ export class FxTreeNodeComponent implements OnInit {
     }
 
     public toggleNode(node: FxTreeNodeInternal) {
-        node._fxtree.expanded = !node._fxtree.expanded;
-        const oldChildCount = node._fxtree.currentChildCount;
-        if (!node._fxtree.expanded) {
-            node._fxtree.currentChildCount = 0;
-        } else {
-            node._fxtree.currentChildCount = this.countExpandedChildren(node);
-        }
-        FxTreeUtil.updateParentsChildCount(node, node._fxtree.currentChildCount - oldChildCount);
+        this.fxTree.treeControl.toggle(node);
+        // node._fxtree.expanded = !node._fxtree.expanded;
+        // const oldChildCount = node._fxtree.currentChildCount;
+        // if (!node._fxtree.expanded) {
+        //     node._fxtree.currentChildCount = 0;
+        // } else {
+        //     node._fxtree.currentChildCount = this.countExpandedChildren(node);
+        // }
+        // FxTreeUtil.updateParentsChildCount(node, node._fxtree.currentChildCount - oldChildCount);
 
-        this.fxTree.refresh(true);
+        // this.fxTree.refresh(true);
     }
 
     public countExpandedChildren(node: FxTreeNodeInternal): number {

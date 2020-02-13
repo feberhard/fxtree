@@ -5,6 +5,8 @@ import {
 import { FxTreeNodeInternal, FxTreeNode, FxTreePreNodeContentEventData, FxTreeNodeMovedEventData } from './model';
 import { CascadeStrategy } from './enum';
 import { FxTreeUtil } from './util';
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { MatTreeFlattener, MatTreeFlatDataSource } from './data-source/flat-data-source';
 
 export interface HeightNode {
     height: number;
@@ -29,9 +31,8 @@ export class FxTreeComponent implements OnInit {
     @Output() public beforeNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
     @Output() public afterNodeMoved = new EventEmitter<FxTreeNodeMovedEventData>(false);
 
-    public topNodes: HeightNode[];
-    public contentNodes: FxTreeNodeInternal[];
-    public bottomNodes: HeightNode[];
+    public dataSource: MatTreeFlatDataSource<FxTreeNode, FxTreeNodeInternal>;
+    public treeControl: FlatTreeControl<FxTreeNodeInternal>;
 
     // private host: HTMLElement;
     // private hostUl: HTMLUListElement;
@@ -65,6 +66,32 @@ export class FxTreeComponent implements OnInit {
         // this.getTreeElements(this.data, 3, 5);
 
         // this.refresh();
+
+        this.treeControl = new FlatTreeControl<FxTreeNodeInternal>(
+            node => node._fxtree.level,
+            node => node.children != null);
+
+        const treeFlattener = new MatTreeFlattener(
+            this._transformer,
+            node => node._fxtree.level,
+            node => node.children != null,
+            node => node.children);
+
+        this.dataSource = new MatTreeFlatDataSource(this.treeControl, treeFlattener);
+        this.dataSource.data = this.data;
+
+        this.treeControl.expandAll();
+    }
+
+    private _transformer = (node: FxTreeNode, level: number) => {
+        return node as FxTreeNodeInternal;
+        //  {
+        //     children: node.children,
+        //     text: node.text,
+        //     _fxtree: {
+        //         level: level
+        //     }
+        // } as FxTreeNodeInternal;
     }
 
     private indexData(data: FxTreeNode[], parent: FxTreeNodeInternal = null, level: number = 0, index: number = 0): number {
@@ -131,34 +158,34 @@ export class FxTreeComponent implements OnInit {
     // }
 
     public refresh(force: boolean = false) {
-    //     const hostHeight = this.host.clientHeight;
-    //     const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
+        //     const hostHeight = this.host.clientHeight;
+        //     const maxDisplayCount = Math.ceil((hostHeight / this.nodeHeight) + 1);  // + 1 cause of possible half item on top and bottom
 
-    //     const scrollTop = this.host.scrollTop;
+        //     const scrollTop = this.host.scrollTop;
 
-    //     const topElements = Math.min(
-    //         Math.floor(scrollTop / this.nodeHeight),
-    //         this.virtualRootNode._fxtree.currentChildCount - maxDisplayCount);
-    //     let topHeight = topElements * this.nodeHeight;
+        //     const topElements = Math.min(
+        //         Math.floor(scrollTop / this.nodeHeight),
+        //         this.virtualRootNode._fxtree.currentChildCount - maxDisplayCount);
+        //     let topHeight = topElements * this.nodeHeight;
 
-    //     const bottomElements = this.virtualRootNode._fxtree.currentChildCount - topElements - maxDisplayCount;
-    //     let bottomHeight = bottomElements * this.nodeHeight;
+        //     const bottomElements = this.virtualRootNode._fxtree.currentChildCount - topElements - maxDisplayCount;
+        //     let bottomHeight = bottomElements * this.nodeHeight;
 
-    //     this.hostUl.innerHTML = '';
+        //     this.hostUl.innerHTML = '';
 
-    //     this.topNodes = [];
-    //     while (topHeight > 0) {
-    //         this.topNodes.push({ height: Math.min(topHeight, this.maxNodeheightBreakPoint) });
-    //         topHeight -= this.maxNodeheightBreakPoint;
-    //     }
+        //     this.topNodes = [];
+        //     while (topHeight > 0) {
+        //         this.topNodes.push({ height: Math.min(topHeight, this.maxNodeheightBreakPoint) });
+        //         topHeight -= this.maxNodeheightBreakPoint;
+        //     }
 
-    //     this.contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
+        //     this.contentNodes = this.getTreeElements(this.data, topElements, maxDisplayCount);
 
-    //     this.bottomNodes = [];
-    //     while (bottomHeight > 0) {
-    //         this.bottomNodes.push({ height: Math.min(bottomHeight, this.maxNodeheightBreakPoint) });
-    //         bottomHeight -= this.maxNodeheightBreakPoint;
-    //     }
+        //     this.bottomNodes = [];
+        //     while (bottomHeight > 0) {
+        //         this.bottomNodes.push({ height: Math.min(bottomHeight, this.maxNodeheightBreakPoint) });
+        //         bottomHeight -= this.maxNodeheightBreakPoint;
+        //     }
     }
 
     // public onScroll(e: UIEvent) {
