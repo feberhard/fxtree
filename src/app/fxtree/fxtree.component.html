@@ -1,4 +1,4 @@
-<div class="fxtree-container" (scroll)="onScroll($event)">
+<!-- <div class="fxtree-container" (scroll)="onScroll($event)">
 
     <div
         *ngFor="let topNode of topNodes"
@@ -14,5 +14,11 @@
         *ngFor="let bottomNode of bottomNodes"
         [style.height.px]="bottomNode.height">
     </div>
+</div> -->
 
-</div>
+<cdk-virtual-scroll-viewport [itemSize]="nodeHeight" style="height: 500px;">
+    <fxtree-node
+        *cdkVirtualFor="let node of data"
+        [node]="node">
+    </fxtree-node>
+</cdk-virtual-scroll-viewport>

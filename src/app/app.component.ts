@@ -17,7 +17,8 @@ export class AppComponent implements OnInit {
 
         // this.tree = this.generateTree(65000, 1);
         // this.tree = this.generateTree(2, 3);
-        this.tree = this.generateTree(7, 6);
+        this.tree = this.generateList(1000);
+        // this.tree = this.generateTree(7, 6);
         // this.tree = this.generateTree(5, 3);
         // this.tree = this.generateTree(3, 3);
     }
@@ -28,6 +29,17 @@ export class AppComponent implements OnInit {
             data[i] = i;
         }
         return data;
+    }
+
+    public generateList(count:number){
+        const nodes: FxTreeNode[] = [];
+        for(let i = 0; i<count; i++){
+            nodes.push({
+                text: 'Item ' + i,
+                children: null
+            });
+        }
+        return nodes;
     }
 
     public generateTree(countPerLevel: number, level: number): FxTreeNode[] {

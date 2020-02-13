@@ -7,13 +7,13 @@ $indicator-height: 10px;
 
 // TODO: remove div selector (currently scroll detection doesn't work without it);
 
-div {
-    height: 100%;
-}
+// div {
+//     height: 100%;
+// }
 
-.fxtree-container {
-    overflow: auto;
-}
+// .fxtree-container {
+//     overflow: auto;
+// }
 
 .fxtree-root {
     padding: 0;

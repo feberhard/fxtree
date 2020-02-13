@@ -1,7 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-
+import { ScrollingModule } from '@angular/cdk/scrolling'
 import { AppComponent } from './app.component';
 import { FxTreeComponent } from './fxtree/fxtree.component';
 import {
@@ -15,10 +14,11 @@ import { FxTreeNodeComponent } from './fxtree/fxtree-node';
         AppComponent,
         FxTreeComponent,
         FxTreeNodeComponent,
-        FxTreeCheckboxDirective
+        FxTreeCheckboxDirective,
     ],
     imports: [
-        BrowserModule
+        BrowserModule,
+        ScrollingModule
     ],
     providers: [],
     bootstrap: [AppComponent]
